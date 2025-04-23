@@ -1,0 +1,66 @@
+x-common-env: &common-env
+  CONNECTIONSTRINGS__POSTGRES: Host=database;Port=5432;Username=postgres;Password=postgres;Database=postgres
+
+x-worker: &worker
+  build:
+    context: .
+    dockerfile: Worker/Dockerfile
+  environment:
+    <<: *common-env
+  depends_on:
+    web:
+      condition: service_healthy
+
+services:
+  database:
+    container_name: database
+    image: postgres:17
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - ${DATABASE_PORT:-5432}:5432
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "PGUSER=postgres", "pg_isready"]
+      start_interval: 1s
+      timeout: 5s
+      retries: 15
+      start_period: 1s
+
+  web:
+    build:
+      context: Web
+    environment:
+      <<: *common-env
+    ports:
+      - ${WEB_PORT:-5000}:8080
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+      start_interval: 1s
+      timeout: 5s
+      retries: 15
+      start_period: 1s
+
+  worker1:
+    <<: *worker
+
+  worker2:
+    <<: *worker
+
+  worker3:
+    <<: *worker
+
+  worker4:
+    <<: *worker
+
+  worker5:
+    <<: *worker
+
+volumes:
+  database:
+    driver: local
