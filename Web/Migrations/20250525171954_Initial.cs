@@ -49,6 +49,33 @@ namespace Web.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "time_tickers",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
+                    lock_holder = table.Column<string>(type: "text", nullable: true),
+                    request = table.Column<byte[]>(type: "bytea", nullable: true),
+                    execution_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    locked_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    executed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    exception = table.Column<string>(type: "text", nullable: true),
+                    elapsed_time = table.Column<long>(type: "bigint", nullable: false),
+                    retries = table.Column<int>(type: "integer", nullable: false),
+                    retry_count = table.Column<int>(type: "integer", nullable: false),
+                    retry_intervals = table.Column<int[]>(type: "integer[]", nullable: true),
+                    function = table.Column<string>(type: "text", nullable: true),
+                    description = table.Column<string>(type: "text", nullable: true),
+                    init_identifier = table.Column<string>(type: "text", nullable: true),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_time_tickers", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "TimeTickers",
                 schema: "ticker",
                 columns: table => new
@@ -123,6 +150,13 @@ namespace Web.Migrations
                 columns: new[] { "status", "execution_time" });
 
             migrationBuilder.CreateIndex(
+                name: "UQ_CronTickerId_ExecutionTime",
+                schema: "ticker",
+                table: "CronTickerOccurrences",
+                columns: new[] { "cron_ticker_id", "execution_time" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CronTickers_Expression",
                 schema: "ticker",
                 table: "CronTickers",
@@ -150,6 +184,9 @@ namespace Web.Migrations
 
             migrationBuilder.DropTable(
                 name: "ticker_executions");
+
+            migrationBuilder.DropTable(
+                name: "time_tickers");
 
             migrationBuilder.DropTable(
                 name: "TimeTickers",

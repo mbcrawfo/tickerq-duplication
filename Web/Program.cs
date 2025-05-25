@@ -1,12 +1,11 @@
 using System.Collections.Immutable;
-using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using TickerQ.Dashboard.DependencyInjection;
 using TickerQ.DependencyInjection;
-using TickerQ.EntityFrameworkCore;
 using TickerQ.EntityFrameworkCore.DependencyInjection;
-using TickerQ.EntityFrameworkCore.Entities;
 using TickerQ.Utilities.Enums;
+using TickerQ.Utilities.Interfaces.Managers;
+using TickerQ.Utilities.Models.Ticker;
 using Web;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +26,30 @@ builder.Services.AddTickerQ(options =>
 builder.Services.AddHealthChecks();
 
 var app = builder.Build();
+
+// TickerQ tries to hit the db as soon as it starts, even in manual mode, so migrations must be applied before that.
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<TickerQDbContext>();
+    await context.Database.MigrateAsync();
+
+    var idleTickers = await context.TimeTickers.CountAsync(tt => tt.Status == TickerStatus.Idle);
+    if (idleTickers < 1000)
+    {
+        var timeTickerManager = scope.ServiceProvider.GetRequiredService<ITimeTickerManager<TimeTicker>>();
+        foreach (var _ in Enumerable.Range(start: 0, 1000 - idleTickers))
+        {
+            await timeTickerManager.AddAsync(
+                new TimeTicker
+                {
+                    Function = nameof(TestTicker),
+                    ExecutionTime = DateTime.UtcNow,
+                    Retries = 0,
+                }
+            );
+        }
+    }
+}
 
 app.UseHealthChecks("/health");
 app.UseTickerQ(TickerQStartMode.Manual);
@@ -56,28 +79,5 @@ app.MapGet(
             );
     }
 );
-
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<TickerQDbContext>();
-    await context.Database.MigrateAsync();
-
-    var idleTickers = await context.TimeTickers.CountAsync(tt => tt.Status == TickerStatus.Idle);
-    if (idleTickers < 1000)
-    {
-        var timeTickerManager = scope.ServiceProvider.GetRequiredService<ITimeTickerManager<TimeTicker>>();
-        foreach (var _ in Enumerable.Range(0, 1000 - idleTickers))
-        {
-            await timeTickerManager.AddAsync(
-                new TimeTicker
-                {
-                    Function = nameof(TestTicker),
-                    ExecutionTime = DateTime.UtcNow,
-                    Retries = 0,
-                }
-            );
-        }
-    }
-}
 
 await app.RunAsync();

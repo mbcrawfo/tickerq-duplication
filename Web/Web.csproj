@@ -11,16 +11,17 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="EFCore.NamingConventions" Version="9.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.4">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.5" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-    <PackageReference Include="TickerQ" Version="2.0.0" />
-    <PackageReference Include="TickerQ.Dashboard" Version="2.0.1" />
-    <PackageReference Include="TickerQ.EntityFrameworkCore" Version="2.0.0" />
+    <PackageReference Include="TickerQ" Version="2.1.0" />
+    <PackageReference Include="TickerQ.Dashboard" Version="2.1.0" />
+    <PackageReference Include="TickerQ.EntityFrameworkCore" Version="2.1.0" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Migrations\" />

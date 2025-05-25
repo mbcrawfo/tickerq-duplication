@@ -17,12 +17,12 @@ namespace Web.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.4")
+                .HasAnnotation("ProductVersion", "9.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTicker", b =>
+            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -74,7 +74,7 @@ namespace Web.Migrations
                     b.ToTable("CronTickers", "ticker");
                 });
 
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerOccurrence<TickerQ.EntityFrameworkCore.Entities.CronTicker>", b =>
+            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerOccurrenceEntity<TickerQ.EntityFrameworkCore.Entities.CronTickerEntity>", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -126,13 +126,17 @@ namespace Web.Migrations
                     b.HasIndex("ExecutionTime")
                         .HasDatabaseName("IX_CronTickerOccurrence_ExecutionTime");
 
+                    b.HasIndex("CronTickerId", "ExecutionTime")
+                        .IsUnique()
+                        .HasDatabaseName("UQ_CronTickerId_ExecutionTime");
+
                     b.HasIndex("Status", "ExecutionTime")
                         .HasDatabaseName("IX_CronTickerOccurrence_Status_ExecutionTime");
 
                     b.ToTable("CronTickerOccurrences", "ticker");
                 });
 
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.TimeTicker", b =>
+            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.TimeTickerEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -215,6 +219,83 @@ namespace Web.Migrations
                     b.ToTable("TimeTickers", "ticker");
                 });
 
+            modelBuilder.Entity("TickerQ.Utilities.Models.Ticker.TimeTicker", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<long>("ElapsedTime")
+                        .HasColumnType("bigint")
+                        .HasColumnName("elapsed_time");
+
+                    b.Property<string>("Exception")
+                        .HasColumnType("text")
+                        .HasColumnName("exception");
+
+                    b.Property<DateTime?>("ExecutedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("executed_at");
+
+                    b.Property<DateTime>("ExecutionTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("execution_time");
+
+                    b.Property<string>("Function")
+                        .HasColumnType("text")
+                        .HasColumnName("function");
+
+                    b.Property<string>("InitIdentifier")
+                        .HasColumnType("text")
+                        .HasColumnName("init_identifier");
+
+                    b.Property<string>("LockHolder")
+                        .HasColumnType("text")
+                        .HasColumnName("lock_holder");
+
+                    b.Property<DateTime?>("LockedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("locked_at");
+
+                    b.Property<byte[]>("Request")
+                        .HasColumnType("bytea")
+                        .HasColumnName("request");
+
+                    b.Property<int>("Retries")
+                        .HasColumnType("integer")
+                        .HasColumnName("retries");
+
+                    b.Property<int>("RetryCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("retry_count");
+
+                    b.PrimitiveCollection<int[]>("RetryIntervals")
+                        .HasColumnType("integer[]")
+                        .HasColumnName("retry_intervals");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_time_tickers");
+
+                    b.ToTable("time_tickers", (string)null);
+                });
+
             modelBuilder.Entity("Web.TickerExecution", b =>
                 {
                     b.Property<Guid>("TickerId")
@@ -235,9 +316,9 @@ namespace Web.Migrations
                     b.ToTable("ticker_executions", (string)null);
                 });
 
-            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerOccurrence<TickerQ.EntityFrameworkCore.Entities.CronTicker>", b =>
+            modelBuilder.Entity("TickerQ.EntityFrameworkCore.Entities.CronTickerOccurrenceEntity<TickerQ.EntityFrameworkCore.Entities.CronTickerEntity>", b =>
                 {
-                    b.HasOne("TickerQ.EntityFrameworkCore.Entities.CronTicker", "CronTicker")
+                    b.HasOne("TickerQ.EntityFrameworkCore.Entities.CronTickerEntity", "CronTicker")
                         .WithMany()
                         .HasForeignKey("CronTickerId")
                         .OnDelete(DeleteBehavior.Cascade)
